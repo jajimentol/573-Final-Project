@@ -3,12 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <title>JajMed</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
 </head>
 <body>
-<h1></h1><p><strong>Welcome to JajMed</strong></p></h1>
 
-<div><input type="text" id="sField" name="searchFeld">
-<input type="submit" id="sButton" name="searchButton"></div>
 
+
+
+<div class="container">
+    <h1>Welcome to JajMed</h1>
+<form name="search" action="search" method="get">
+<label class="form-label">Search</label>
+<input type="text" class="form-control" name="searchbox">
+<div id="passwordHelpBlock" class="form-text">
+  Search for some keyword
+</div><input type="submit" value="Submit">
+</form>
+
+</div>
 </body>
- 
