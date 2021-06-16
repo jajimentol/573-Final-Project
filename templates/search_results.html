@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+</head>
+<body>
+<div class="container">
+<table style="width:90%" class="table">
+  <tr>
+    <th style="width: 50%">Title</th>
+    <th style="width: 30%">Authors</th>
+    <th style="width: 10%">Date</th>
+    <th style="width: 10%"></th>
+  </tr>
+  {% for item in data %}
+  <tr>
+    <td>{{ item["article_title"]}} </td>
+    <td>{{ item.authors}} </td>
+    <td>{{ item.date}}</td>
+    <td><a class="btn btn-primary" href="/details/{{item.id}}"> Details </a> </td>
+  </tr>
+  {% endfor %}
+</table>
+  
+  </div>
+</body>
+</html>
