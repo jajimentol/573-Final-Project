@@ -2,7 +2,7 @@ FROM python:3.9
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pymongo flask dnspython
+RUN pip install --no-cache-dir pymongo flask dnspython xmltodict requests
 
 ENV FLASK_APP=main.py
 
