@@ -7,18 +7,36 @@
 </head>
 <body>
 
-
-
-
-<div class="container">
+<div class="container col-md-6">
     <h1>Welcome to JajMed</h1>
 <form name="search" action="search" method="get">
-<label class="form-label">Search</label>
-<input type="text" class="form-control" name="searchbox">
-<div id="passwordHelpBlock" class="form-text">
+<label class="form-label">Search Anything (Magical Search) </label>
+<input type="text" class="form-control" name="q">
+<div class="form-text">
   Search for some keyword
-</div><input type="submit" value="Submit">
+</div><input class="btn btn-primary col-md-12" type="submit" value="Search">
+</form>
+<br>
+    <form name="search" action="search/title" method="get">
+<label class="form-label">Search in Titles</label>
+<input type="text" class="form-control" name="title">
+<div  class="form-text">
+</div><input class="btn btn-primary col-md-12" type="submit" value="Search">
 </form>
 
+    <br>
+    <form name="search" action="search/author" method="get">
+<label class="form-label">Search Authors </label>
+<input type="text" class="form-control" name="author">
+<div  class="form-text">
+</div><input class="btn btn-primary col-md-12" type="submit" value="Search">
+</form>
+    <br>
+    <form name="search" action="search/abstract" method="get">
+<label class="form-label">Search Abstract</label>
+<input type="text" class="form-control" name="abstract">
+<div  class="form-text">
+</div><input class="btn btn-primary col-md-12" type="submit" value="Search">
+</form>
 </div>
 </body>
