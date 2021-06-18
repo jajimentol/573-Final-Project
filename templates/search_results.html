@@ -16,14 +16,13 @@
   </tr>
   {% for item in data %}
   <tr>
-    <td>{{ item["article_title"]}} </td>
-    <td>{{ item.authors}} </td>
-    <td>{{ item.date}}</td>
+    <td>{{ item["article_title"] }} </td>
+    <td>{{ item.authors }} </td>
+    <td>{{ item.date }}</td>
     <td><a class="btn btn-primary" href="/details/{{item.id}}"> Details </a> </td>
   </tr>
   {% endfor %}
 </table>
-  
   </div>
 </body>
 </html>
