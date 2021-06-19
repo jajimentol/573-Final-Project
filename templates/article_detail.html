@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-+0n0xVW2eSR5OomGNYDnhzAbDsOXxcvSN1TPprVMTNDbiYZCxYbOOl7+AMvyTG2x" crossorigin="anonymous">
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+      <link rel="stylesheet" href="/resources/demos/style.css">
+     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
+
 </head>
 <body>
 <div class="container">
@@ -14,12 +20,14 @@
     <p class="card-text">{{abstract}}</p>
     <p class="card-link">{{ data.date }}</p>
     <a href="#"  onclick="func()" class="card-link">Tag</a>
-      <div id="tag"style="display:none" >
+      <div id="tag" style="display:none" >
           <br>
-          <form name="search" action="saveTag" method="post">
-            <input type="text" oninput= {{ tagSearch }} class="form-control" name="tagbox">
+          <form name="search" action="{{ data.id }}/saveTag" method="post">
+            <input type="text" id="tagSearch" class="form-control" name="tagbox">
               <br>
-              <input type="submit" value="Submit">
+              <input type="text" id="customTagName" class="form-control" style="display:none" name="customTagBox">
+              <br>
+              <input type="submit" value="Save Tag">
           </form>
       </div>
   </div>
@@ -32,4 +40,31 @@
  {
   document.getElementById('tag').style.display = 'block';
  }
+
+const input = document.getElementById('tagSearch');
+
+input.addEventListener('keyup', searchTag);
+
+function searchTag(e) {
+   const key = document.getElementById("tagSearch").value
+   // alert(key)
+   document.getElementById('customTagName').value = ""
+   document.getElementById('customTagName').style.display = 'none';
+  fetch(`/fetch/wikidata/${key}`)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        $("#tagSearch").autocomplete({
+             source: data,
+//            source: data.map(o => o.label),
+            select:
+                function( event, ui ) {
+                    document.getElementById('customTagName').style.display = 'block';
+                // pass selected item to route fetch(`/fetch/wikidata/${key}`)
+                    console.log(event, ui)
+                }
+        });
+    });
+}
+
 </script>
