@@ -1,0 +1,7 @@
+version: "3.4"
+
+services:
+  jajmed:
+    image: jajimentol/573final:latest
+    ports:
+      - 5000:5000

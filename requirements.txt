@@ -1,0 +1,6 @@
+pymongo
+flask
+dnspython
+xmltodict
+requests
+flask-login
