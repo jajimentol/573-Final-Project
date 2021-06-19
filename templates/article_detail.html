@@ -27,7 +27,7 @@
               <br>
               <input type="text" id="customTagName" class="form-control" style="display:none" name="customTagBox">
               <br>
-              <input type="submit" value="Save Tag">
+              <input type="submit" id="tagSubmit" value="Save Tag" disabled>
           </form>
       </div>
   </div>
@@ -60,6 +60,7 @@ function searchTag(e) {
             select:
                 function( event, ui ) {
                     document.getElementById('customTagName').style.display = 'block';
+                    document.getElementById('tagSubmit').disabled = false;
                 // pass selected item to route fetch(`/fetch/wikidata/${key}`)
                     console.log(event, ui)
                 }
