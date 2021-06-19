@@ -42,3 +42,19 @@ jobs:
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
+
+      - name: pull image
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: docker-compose pull
+          host: ${{ secrets.HOST }}
+          username: ec2-user
+          privateKey: ${{ secrets.PRIVATE_KEY}}
+          
+      - name: update service
+        uses: garygrossgarten/github-action-ssh@release
+        with:
+          command: docker-compose up -d
+          host: ${{ secrets.HOST }}
+          username: ec2-user
+          privateKey: ${{ secrets.PRIVATE_KEY}}
