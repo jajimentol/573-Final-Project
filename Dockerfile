@@ -2,10 +2,16 @@ FROM python:3.9
 
 WORKDIR /app
 
-RUN pip install --no-cache-dir pymongo flask dnspython xmltodict requests
+COPY requirements.txt .
+
+RUN pip install -r requirements.txt --no-cache-dir
 
 ENV FLASK_APP=main.py
 
+ENV FLASK_ENV=debug
+
 COPY . .
 
-CMD [ "flask",  "run" ]
+EXPOSE 5000
+
+CMD [ "flask",  "run", "--host=0.0.0.0" ]
