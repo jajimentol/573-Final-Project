@@ -12,6 +12,7 @@
     <th style="width: 50%">Title</th>
     <th style="width: 30%">Authors</th>
     <th style="width: 10%">Date</th>
+    <th style="width: 10%">Tags</th>
     <th style="width: 10%"></th>
   </tr>
   {% for item in data %}
@@ -19,6 +20,7 @@
     <td>{{ item["article_title"] }} </td>
     <td>{{ item.authors }} </td>
     <td>{{ item.date }}</td>
+    <td>{{ item.tags }}</td>
     <td><a class="btn btn-primary" href="/details/{{item.id}}"> Details </a> </td>
   </tr>
   {% endfor %}

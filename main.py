@@ -89,8 +89,21 @@ def search():
 		item["authors"] = item["authors"][:-2]
 		if len(item["authors"]) > 100:
 			item["authors"] = item["authors"][0:100] + "..."
+
+		is_tags_exist = "tags" in item
+		if is_tags_exist:
+			tags = item["tags"]
+			if isinstance(tags, list):
+				tag_labels = " "
+				for tag_item in tags:
+					tag = tag_collection.find_one({"id" : tag_item, "username" : session["username"] })
+					if tag:
+						tag_labels = tag["custom_name"] + ", " + tag_labels
+					else:
+						tag_labels = tag_labels + " "
+				tag_labels = tag_labels[:-2]
+			item["tags"] = tag_labels
 		sr_array.append(item)
-	print(session["username"])
 	return render_template('search_results.html', data=sr_array)
 
 @app.route('/search/title', methods=['GET'])
