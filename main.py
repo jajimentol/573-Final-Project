@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 import requests
 from flask_login import LoginManager, login_required, current_user, login_user
-
+import hashlib
 import pymongo
 from pymongo import MongoClient
 
@@ -25,7 +25,8 @@ app.config['SESSION_TYPE'] = 'filesystem'
 
 @app.route('/')
 def index():
-	session["username"] = ""
+	if "username" in session:
+		del session["username"]
 	return render_template('login.html')
 
 @app.route('/home')
@@ -34,6 +35,8 @@ def landing():
 
 @app.route('/main')
 def main():
+	if "username" not in session:
+		return redirect("/")
 	return render_template('main_page.html', my_tags= get_user_tags())
 
 @app.route('/login', methods=['POST'])
@@ -44,7 +47,8 @@ def login():
 	user = user_collection.find_one({"username": username})
 	if user:
 		is_password_true = user["password"]
-		if is_password_true == password:
+		hashed_pw = hashlib.sha224(password.encode("utf-8")).hexdigest()
+		if is_password_true == hashed_pw:
 			session["username"] = username
 			print(session["username"])
 			return render_template('main_page.html', my_tags= get_user_tags())
@@ -61,8 +65,11 @@ def register():
 		if is_username_exists:
 			print("username var")
 		else:
-			user_collection.insert_one({"username": username, "password": password})
-			user = user_collection.find_one({"username": username, "password": password})
+			hashed_pw = hashlib.sha224(password.encode("utf-8")).hexdigest()
+			print(hashed_pw)
+			user_collection.insert_one({"username": username, "password": hashed_pw})
+
+			user = user_collection.find_one({"username": username, "password": hashed_pw})
 			session["username"] = username
 			print("kullanıcı eklendi")
 			return redirect("/main")
