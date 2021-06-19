@@ -12,6 +12,26 @@
 
 </head>
 <body>
+
+<nav class="navbar navbar-expand-lg navbar-light bg-light">
+  <div class="container-fluid">
+    <a class="navbar-brand" href="/main">JajMed</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNavDropdown" aria-controls="navbarNavDropdown" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+    </button>
+    <div class="collapse navbar-collapse" id="navbarNavDropdown">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link active" aria-current="page" href="/main">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="/">Logout</a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>
+
 <div class="container">
 <div class="card">
   <div class="card-body">
@@ -19,6 +39,11 @@
     <h6 class="card-subtitle mb-2 text-muted">{{ data.authors }}</h6>
     <p class="card-text">{{abstract}}</p>
     <p class="card-link">{{ data.date }}</p>
+      {% for item in tags %}
+          <p>Wikidata to <a href="{{item.tagURL}}" target="_blank" rel="noopener noreferrer"> {{ item.custom_name}} </a></p>
+      {% endfor %}
+  </div>
+    <div class="container">
     <a href="#"  onclick="func()" class="card-link">Tag</a>
       <div id="tag" style="display:none" >
           <br>
@@ -30,6 +55,8 @@
               <input type="submit" id="tagSubmit" value="Save Tag" disabled>
           </form>
       </div>
+    </div>
+    <br>
   </div>
 </div>
 </div>
