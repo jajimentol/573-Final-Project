@@ -8,7 +8,7 @@ RUN pip install -r requirements.txt --no-cache-dir
 
 ENV FLASK_APP=main.py
 
-ENV FLASK_ENV=debug
+#ENV FLASK_ENV=debug
 
 COPY . .
 
