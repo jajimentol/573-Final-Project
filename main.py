@@ -1,5 +1,5 @@
-from flask import Flask, render_template, request, redirect, url_for, session
-
+from flask import Flask, render_template, request, redirect, url_for, session, jsonify
+import requests
 from flask_login import LoginManager, login_required, current_user, login_user
 
 import pymongo
@@ -17,6 +17,8 @@ cluster = MongoClient('mongodb+srv://jaji:crazywamp@cluster0.5m64e.mongodb.net/m
 db = cluster['PubMed']
 collection = db['articles']
 user_collection = db['userAuth']
+tag_collection = db['tags']
+
 app.secret_key = 'memcached'
 app.config['SESSION_TYPE'] = 'filesystem'
 # collection.insert_one({"name": "aydin"})
@@ -28,6 +30,10 @@ def index():
 @app.route('/home')
 def landing():
 	return render_template('login.html')
+
+@app.route('/main')
+def main():
+	return render_template('main_page.html')
 
 @app.route('/login', methods=['POST'])
 def login():
@@ -135,7 +141,46 @@ def get_article_detail(article_id):
 			total_abstact += item["#text"] + " "
 	elif isinstance(abstract_data, object):
 		total_abstact = ''.join(abstract_data["#text"])
-	return render_template('article_detail.html', data=search_result, abstract=total_abstact, tagSearch = wikidata_search())
+	return render_template('article_detail.html', data=search_result, abstract=total_abstact)
 
-def wikidata_search():
-	print("wikidata")
+@app.route('/fetch/wikidata/<search>', methods= ['GET'])
+def fetch_wikidata(search):
+	query = {'action': 'wbsearchentities', 'format': 'json', 'language': 'en', 'type': 'item', 'continue' : '0','search' : search}
+	r = requests.get("http://www.wikidata.org/w/api.php", params=query)
+	wikidata_search = r.json()["search"]
+	if isinstance(wikidata_search, list):
+		label_array = []
+		for item in wikidata_search:
+			label_array.append(item["label"])
+		return jsonify(label_array)
+	else:
+		return jsonify(["test"])
+	# id li [object] dön
+
+@app.route('/details/<article_id>/saveTag', methods=['POST'])
+def save_tag_for_article(article_id):
+	payload = request.form
+	tag_label = payload['tagbox']
+	custom_tag_label = payload['customTagBox']
+
+	query = {'action': 'wbsearchentities', 'format': 'json', 'language': 'en', 'type': 'item', 'continue': '0',
+			 'search': tag_label}
+	r = requests.get("http://www.wikidata.org/w/api.php", params=query)
+	wikidata_search = r.json()["search"]
+
+	for item in wikidata_search:
+		if item['label'] == tag_label:
+			selected_wikidata_item = item
+			tag_collection.insert_one({"id" : item["id"], "label" : item["label"], "custom_name": custom_tag_label, "username" : session["username"], "tagURL" : item["url"] })
+			article_in_db = collection.find_one({"id" : article_id})
+			tags = article_in_db["tags"]
+			if isinstance(tags, list):
+				tags.append(item["id"])
+				collection.update_one({"id" : article_id}, {"$set": {"tags": tags}})
+			elif isinstance(tags, str):
+				tag_array = [tags, item["id"]]
+				collection.update_one({"id": article_id}, {"$set": {"tags": tag_array}})
+			break
+	article_in_db = collection.find_one({"id": article_id})
+	#collection.find_one_and_update({"tags": })
+	return redirect("/main")
