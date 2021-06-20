@@ -81,6 +81,7 @@ def search():
 	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
 	sr_array = []
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__()+ "?q=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/title', methods=['GET'])
@@ -88,6 +89,7 @@ def search_in_title():
 	query = request.args.get('title').__str__()
 	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__() + "?title=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/author', methods=['GET'])
@@ -95,6 +97,7 @@ def search_author():
 	query = request.args.get('author').__str__()
 	search_result = collection.find({"authors": {'$regex': query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__() + "?author=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/abstract', methods=['GET'])
@@ -102,6 +105,7 @@ def search_abstract():
 	query = request.args.get('abstract').__str__()
 	search_result = collection.find({"abstract_text": {'$regex': query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__() + "?abstract=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/tags', methods=['GET'])
@@ -122,6 +126,7 @@ def search_in_tags():
 		return redirect("/main")
 
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__() + "?tag=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/mytags/<tag>', methods=['GET'])
@@ -142,6 +147,7 @@ def search_my_tags(tag):
 		return redirect("/main")
 
 	sr_array = order_search_resutlts(search_result)
+	session["lastq"] = request.url_rule.__str__()
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/details/<article_id>', methods=['GET'])
@@ -220,9 +226,14 @@ def save_tag_for_article(article_id):
 				break
 			else:
 				collection.update_one({"id": article_id}, {"$set": {"tags": item["id"]}})
+				break
 
 	return redirect("/details/"+article_id)
 	#return redirect("/main")
+
+@app.route('/lastq', methods=['GET'])
+def get_last_query():
+	return redirect(session["lastq"])
 
 def get_user_tags():
 	user_tags = tag_collection.find({"username": session["username"]})
@@ -247,14 +258,13 @@ def order_search_resutlts(db_cursor):
 			if isinstance(tags, list):
 				for tag_item in tags:
 					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
-					print(tag_item)
 					if tag:
 						if tag["custom_name"] != "":
 							tag_labels = tag["custom_name"] + ", " + tag_labels
 						else:
 							tag_labels = tag["label"] + ", " + tag_labels
 					else:
-						tag_labels = tag_labels + " "
+						tag_labels = tag_labels
 				tag_labels = tag_labels[:-3]
 			elif isinstance(tags, str):
 				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
