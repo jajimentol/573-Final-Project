@@ -50,8 +50,7 @@ def login():
 		hashed_pw = hashlib.sha224(password.encode("utf-8")).hexdigest()
 		if is_password_true == hashed_pw:
 			session["username"] = username
-			print(session["username"])
-			return render_template('main_page.html', my_tags= get_user_tags())
+			return redirect("/main")
 	return render_template('login.html')
 
 @app.route('/register', methods=['POST', 'GET'])
@@ -66,7 +65,6 @@ def register():
 			print("username var")
 		else:
 			hashed_pw = hashlib.sha224(password.encode("utf-8")).hexdigest()
-			print(hashed_pw)
 			user_collection.insert_one({"username": username, "password": hashed_pw})
 
 			user = user_collection.find_one({"username": username, "password": hashed_pw})
@@ -80,154 +78,40 @@ def register():
 @app.route('/search', methods=['GET'])
 def search():
 	query =  request.args.get('q').__str__()
-	print(query)
 	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
 	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id" : tag_item, "username" : session["username"] })
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/title', methods=['GET'])
 def search_in_title():
 	query = request.args.get('title').__str__()
 	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
-	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/author', methods=['GET'])
 def search_author():
 	query = request.args.get('author').__str__()
 	search_result = collection.find({"authors": {'$regex': query}}).limit(100)
-	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/abstract', methods=['GET'])
 def search_abstract():
 	query = request.args.get('abstract').__str__()
 	search_result = collection.find({"abstract_text": {'$regex': query}}).limit(100)
-	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/tags', methods=['GET'])
 def search_in_tags():
 	query = request.args.get('tag').__str__()
 	user_tags = tag_collection.find({"username" : session["username"]})
-	print(user_tags)
 
 	tag_id = ""
 	for item in user_tags:
 		if item["custom_name"] == query:
-			tag_to_search = query
 			tag_id = item["id"]
 		elif item["label"] == query:
 			tag_id = item["id"]
@@ -237,36 +121,7 @@ def search_in_tags():
 	else:
 		return redirect("/main")
 
-	print(search_result)
-	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"] })
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/search/mytags/<tag>', methods=['GET'])
@@ -277,7 +132,6 @@ def search_my_tags(tag):
 	tag_id = ""
 	for item in user_tags:
 		if item["custom_name"] == query:
-			tag_to_search = query
 			tag_id = item["id"]
 		elif item["label"] == query:
 			tag_id = item["id"]
@@ -287,36 +141,7 @@ def search_my_tags(tag):
 	else:
 		return redirect("/main")
 
-	print(search_result)
-	sr_array = []
-	for item in search_result:
-		item["authors"] = item["authors"][:-2]
-		if len(item["authors"]) > 100:
-			item["authors"] = item["authors"][0:100] + "..."
-		tag_labels = " "
-		is_tags_exist = "tags" in item
-		if is_tags_exist:
-			tags = item["tags"]
-			if isinstance(tags, list):
-				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"] })
-					if tag:
-						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
-						else:
-							tag_labels = tag["label"] + ", " + tag_labels
-					else:
-						tag_labels = tag_labels + " "
-				tag_labels = tag_labels[:-3]
-			elif isinstance(tags, str):
-				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-				if tag:
-					if tag["custom_name"] != "":
-						tag_labels = tag["custom_name"]
-					else:
-						tag_labels = tag["label"]
-			item["tags"] = tag_labels
-		sr_array.append(item)
+	sr_array = order_search_resutlts(search_result)
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
 
 @app.route('/details/<article_id>', methods=['GET'])
@@ -330,7 +155,7 @@ def get_article_detail(article_id):
 		for item in abstract_data:
 			total_abstact += item["#text"] + " "
 	elif isinstance(abstract_data, object):
-		total_abstact = ''.join(abstract_data["#text"], my_tags= get_user_tags())
+		total_abstact = ''.join(abstract_data["#text"])
 
 	is_tags_exist = "tags" in search_result
 	tags_list = []
@@ -339,15 +164,18 @@ def get_article_detail(article_id):
 		if isinstance(tags, list):
 			for tag_item in tags:
 				tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
-				if tag["custom_name"] == "":
-					tag["custom_name"] = tag["label"]
 				if tag:
-					tags_list.append(tag)
+					if tag["custom_name"] == "":
+						tag["custom_name"] = tag["label"]
+					if tag:
+						tags_list.append(tag)
 		elif isinstance(tags, str):
 			tag = tag_collection.find_one({"id": tags, "username": session["username"]})
-			if tag["custom_name"] == "":
-				tag["custom_name"] = tag["label"]
-			tags_list.append(tag)
+			if tag:
+				if tag["custom_name"] == "":
+					tag["custom_name"] = tag["label"]
+				tag["custom_name"] = tag["custom_name"]
+				tags_list.append(tag)
 	return render_template('article_detail.html', data=search_result, abstract=total_abstact, tags=tags_list)
 
 @app.route('/fetch/wikidata/<search>', methods= ['GET'])
@@ -362,7 +190,6 @@ def fetch_wikidata(search):
 		return jsonify(label_array)
 	else:
 		return jsonify(["test"])
-	# id li [object] dön
 
 @app.route('/details/<article_id>/saveTag', methods=['POST'])
 def save_tag_for_article(article_id):
@@ -379,7 +206,6 @@ def save_tag_for_article(article_id):
 
 	for item in wikidata_search:
 		if item['label'] == tag_label:
-			selected_wikidata_item = item
 			tag_collection.insert_one({"id" : item["id"], "label" : item["label"], "custom_name": custom_tag_label, "username" : session["username"], "tagURL" : item["url"] })
 			article_in_db = collection.find_one({"id" : article_id})
 			is_tags_exist = "tags" in article_in_db
@@ -404,5 +230,38 @@ def get_user_tags():
 			my_tags_list.append(item["custom_name"])
 		elif item["label"] != "":
 			my_tags_list.append(item["label"])
-	print(my_tags_list)
 	return my_tags_list
+
+def order_search_resutlts(db_cursor):
+	return_array = []
+	for item in db_cursor:
+		item["authors"] = item["authors"][:-2]
+		if len(item["authors"]) > 100:
+			item["authors"] = item["authors"][0:100] + "..."
+		tag_labels = " "
+		is_tags_exist = "tags" in item
+		if is_tags_exist:
+			tags = item["tags"]
+			if isinstance(tags, list):
+				for tag_item in tags:
+					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
+					print(tag_item)
+					if tag:
+						if tag["custom_name"] != "":
+							tag_labels = tag["custom_name"] + ", " + tag_labels
+						else:
+							tag_labels = tag["label"] + ", " + tag_labels
+					else:
+						tag_labels = tag_labels + " "
+				tag_labels = tag_labels[:-3]
+			elif isinstance(tags, str):
+				tag = tag_collection.find_one({"id": tags, "username": session["username"]})
+				if tag:
+					if tag["custom_name"] != "":
+						tag_labels = tag["custom_name"]
+					else:
+						tag_labels = tag["label"]
+			item["tags"] = tag_labels
+
+		return_array.append(item)
+	return return_array
