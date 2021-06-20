@@ -78,8 +78,7 @@ def register():
 @app.route('/search', methods=['GET'])
 def search():
 	query =  request.args.get('q').__str__()
-	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
-	sr_array = []
+	search_result = collection.find({'$or': [{"article_title": {'$regex': query}}, {"abstract_text": {'$regex': query}}, {"authors": {'$regex': query}}]})
 	sr_array = order_search_resutlts(search_result)
 	session["lastq"] = request.url_rule.__str__()+ "?q=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
@@ -115,9 +114,9 @@ def search_in_tags():
 
 	tag_id = ""
 	for item in user_tags:
-		if item["custom_name"] == query:
+		if query in item["custom_name"]:
 			tag_id = item["id"]
-		elif item["label"] == query:
+		elif query in item["label"]:
 			tag_id = item["id"]
 
 	if tag_id != "":
@@ -169,12 +168,13 @@ def get_article_detail(article_id):
 		tags = search_result["tags"]
 		if isinstance(tags, list):
 			for tag_item in tags:
-				tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
+				tag = tag_collection.find_one({"id": tag_item, "username": session["username"], "articleId" : article_id})
 				if tag:
 					if tag["custom_name"] == "":
 						tag["custom_name"] = tag["label"]
 					if tag:
-						tags_list.append(tag)
+						if tag not in tags_list:
+							tags_list.append(tag)
 		elif isinstance(tags, str):
 			tag = tag_collection.find_one({"id": tags, "username": session["username"]})
 			if tag:
@@ -212,7 +212,12 @@ def save_tag_for_article(article_id):
 
 	for item in wikidata_search:
 		if item['label'] == tag_label:
-			tag_collection.insert_one({"id" : item["id"], "label" : item["label"], "custom_name": custom_tag_label, "username" : session["username"], "tagURL" : item["url"] })
+			tag_collection.insert_one({"id" : item["id"],
+									   "label" : item["label"],
+									   "custom_name": custom_tag_label,
+									   "username" : session["username"],
+									   "tagURL" : item["url"],
+									   "articleId" : article_id })
 			article_in_db = collection.find_one({"id" : article_id})
 			is_tags_exist = "tags" in article_in_db
 			if is_tags_exist:
@@ -257,12 +262,14 @@ def order_search_resutlts(db_cursor):
 			tags = item["tags"]
 			if isinstance(tags, list):
 				for tag_item in tags:
-					tag = tag_collection.find_one({"id": tag_item, "username": session["username"]})
+					tag = tag_collection.find_one({"id": tag_item, "username": session["username"], "articleId": item["id"]})
 					if tag:
 						if tag["custom_name"] != "":
-							tag_labels = tag["custom_name"] + ", " + tag_labels
+							if tag["custom_name"] not in tag_labels:
+								tag_labels = tag["custom_name"] + ", " + tag_labels
 						else:
-							tag_labels = tag["label"] + ", " + tag_labels
+							if tag["label"] not in tag_labels:
+								tag_labels = tag["label"] + ", " + tag_labels
 					else:
 						tag_labels = tag_labels
 				tag_labels = tag_labels[:-3]
