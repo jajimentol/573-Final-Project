@@ -192,10 +192,14 @@ def fetch_wikidata(search):
 	if isinstance(wikidata_search, list):
 		label_array = []
 		for item in wikidata_search:
-			label_array.append(item["label"] + " (" + item["description"] + ")")
+			if "description" in item:
+				label_array.append(item["label"] + " (" + item["description"] + ")")
+			else:
+				label_array.append(item["label"])
+
 		return jsonify(label_array)
 	else:
-		return jsonify(["test"])
+		return jsonify([])
 
 @app.route('/details/<article_id>/saveTag', methods=['POST'])
 def save_tag_for_article(article_id):
