@@ -220,7 +220,9 @@ def save_tag_for_article(article_id):
 				break
 			else:
 				collection.update_one({"id": article_id}, {"$set": {"tags": item["id"]}})
-	return redirect("/main")
+
+	return redirect("/details/"+article_id)
+	#return redirect("/main")
 
 def get_user_tags():
 	user_tags = tag_collection.find({"username": session["username"]})
