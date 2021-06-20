@@ -78,7 +78,8 @@ def register():
 @app.route('/search', methods=['GET'])
 def search():
 	query =  request.args.get('q').__str__()
-	search_result = collection.find({'$or': [{"article_title": {'$regex': query}}, {"abstract_text": {'$regex': query}}, {"authors": {'$regex': query}}]})
+	regex_query = ".*" + query + ".*"
+	search_result = collection.find({'$or': [{"article_title": {'$regex': regex_query}}, {"abstract_text": {'$regex': regex_query}}, {"authors": {'$regex': regex_query}}]})
 	sr_array = order_search_resutlts(search_result)
 	session["lastq"] = request.url_rule.__str__()+ "?q=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
@@ -86,7 +87,8 @@ def search():
 @app.route('/search/title', methods=['GET'])
 def search_in_title():
 	query = request.args.get('title').__str__()
-	search_result = collection.find({"article_title": {'$regex': query}}).limit(100)
+	regex_query = ".*" + query + ".*"
+	search_result = collection.find({"article_title": {'$regex': regex_query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
 	session["lastq"] = request.url_rule.__str__() + "?title=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
@@ -94,7 +96,8 @@ def search_in_title():
 @app.route('/search/author', methods=['GET'])
 def search_author():
 	query = request.args.get('author').__str__()
-	search_result = collection.find({"authors": {'$regex': query}}).limit(100)
+	regex_query = ".*" + query + ".*"
+	search_result = collection.find({"authors": {'$regex': regex_query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
 	session["lastq"] = request.url_rule.__str__() + "?author=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
@@ -102,7 +105,8 @@ def search_author():
 @app.route('/search/abstract', methods=['GET'])
 def search_abstract():
 	query = request.args.get('abstract').__str__()
-	search_result = collection.find({"abstract_text": {'$regex': query}}).limit(100)
+	regex_query = ".*" + query + ".*"
+	search_result = collection.find({"abstract_text": {'$regex': regex_query}}).limit(100)
 	sr_array = order_search_resutlts(search_result)
 	session["lastq"] = request.url_rule.__str__() + "?abstract=" + query
 	return render_template('search_results.html', data=sr_array, my_tags= get_user_tags())
